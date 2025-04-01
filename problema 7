@@ -1,0 +1,41 @@
+
+set.seed(123)
+finanzas_data <- data.frame(
+  Empresa = c("Empresa A", "Empresa B", "Empresa C", "Empresa D", "Empresa E"),
+  Ingresos = c(100000, 200000, 150000, 250000, 120000),
+  Gastos = c(80000, 180000, 120000, 220000, 110000),
+  Beneficio = c(20000, 20000, 30000, 30000, 10000),
+  Deuda = c(50000, 70000, 40000, 60000, 30000)
+)
+
+finanzas_data_estandarizado <- finanzas_data %>%
+  select(-Empresa) %>%  # Excluir la columna de texto (Empresa)
+  scale()  # Estandarización
+
+finanzas_data_estandarizado <- as.data.frame(finanzas_data_estandarizado)
+finanzas_data_estandarizado$Empresa <- finanzas_data$Empresa
+
+finanzas_data_normalizado <- finanzas_data %>%
+  select(-Empresa) %>%  # Excluir la columna de texto (Empresa)
+  mutate(across(everything(), ~ ( . - min(.) ) / ( max(.) - min(.) ) ))  # Normalización
+
+# Añadir la columna 'Empresa' de vuelta al dataset normalizado
+finanzas_data_normalizado$Empresa <- finanzas_data$Empresa
+
+cat("\nDataset estandarizado (Z-score):\n")
+print(finanzas_data_estandarizado)
+
+cat("\nDataset normalizado (Min-Max):\n")
+print(finanzas_data_normalizado)
+
+cat("\nResumen de la estandarización (Z-score):\n")
+print(summary(finanzas_data_estandarizado))
+
+cat("\nResumen de la normalización (Min-Max):\n")
+print(summary(finanzas_data_normalizado))
+
+cat("\nDesviación estándar de los datos estandarizados:\n")
+print(sapply(finanzas_data_estandarizado[, -5], sd))  # Excluir la columna 'Empresa'
+
+cat("\nDesviación estándar de los datos normalizados:\n")
+print(sapply(finanzas_data_normalizado[, -5], sd))  # Excluir la columna 'Empresa'
