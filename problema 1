@@ -1,0 +1,52 @@
+# Especificar la ruta del archivo
+ruta_archivo <- "C:/Users/miche/Downloads/ventas_sucursales.csv"
+
+# Verificar si el archivo existe
+if (!file.exists(ruta_archivo)) {
+  stop("Error: El archivo no se encuentra en la ruta especificada.")
+}
+
+# Cargar el dataset
+ventas <- read.csv(ruta_archivo, stringsAsFactors = FALSE)
+
+# Mostrar las primeras filas antes de la limpieza
+cat("\n--- DATOS ANTES DE LA LIMPIEZA ---\n")
+print(head(ventas))
+
+# 1. Identificar valores faltantes
+cat("\nValores faltantes por columna antes de limpieza:\n")
+print(colSums(is.na(ventas)))
+
+# Reemplazar valores faltantes con la media (para columnas numéricas)
+ventas[sapply(ventas, is.numeric)] <- lapply(ventas[sapply(ventas, is.numeric)], function(x) {
+  ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+})
+
+# Para valores faltantes en columnas de texto, reemplazar por "Desconocido"
+ventas[sapply(ventas, is.character)] <- lapply(ventas[sapply(ventas, is.character)], function(x) {
+  ifelse(x == "" | is.na(x), "Desconocido", x)
+})
+
+# 2. Eliminar valores duplicados
+ventas <- ventas[!duplicated(ventas), ]
+
+# 3. Estandarizar nombres de productos (asumiendo que hay una columna llamada 'producto')
+if ("producto" %in% colnames(ventas)) {
+  ventas$producto <- tolower(ventas$producto)  # Convertir a minúsculas
+  ventas$producto <- trimws(ventas$producto)   # Eliminar espacios extra
+  ventas$producto <- gsub("[^a-z0-9 ]", "", ventas$producto)  # Eliminar caracteres especiales
+}
+
+# Mostrar las primeras filas después de la limpieza
+cat("\n--- DATOS DESPUÉS DE LA LIMPIEZA ---\n")
+print(head(ventas))
+
+# Mostrar valores faltantes después de limpieza
+cat("\nValores faltantes por columna después de limpieza:\n")
+print(colSums(is.na(ventas)))
+
+# Guardar el dataset limpio en un nuevo archivo CSV
+ruta_limpia <- "C:/Users/axelh/Downloads/ventas_sucursales_limpio.csv"
+write.csv(ventas, ruta_limpia, row.names = FALSE)
+
+cat("\nDatos limpios guardados en:", ruta_limpia, "\n")
