@@ -46,7 +46,7 @@ cat("\nValores faltantes por columna después de limpieza:\n")
 print(colSums(is.na(ventas)))
 
 # Guardar el dataset limpio en un nuevo archivo CSV
-ruta_limpia <- "C:/Users/axelh/Downloads/ventas_sucursales_limpio.csv"
+ruta_limpia <- "C:/Users/miche/Downloads/ventas_sucursales_limpio.csv"
 write.csv(ventas, ruta_limpia, row.names = FALSE)
 
 cat("\nDatos limpios guardados en:", ruta_limpia, "\n")
