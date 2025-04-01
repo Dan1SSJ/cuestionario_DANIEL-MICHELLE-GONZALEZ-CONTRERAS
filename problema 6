@@ -1,0 +1,37 @@
+# Cargar librerías necesarias
+library(dplyr)
+
+# Crear un dataset con valores faltantes en presión arterial y glucosa
+pacientes <- data.frame(
+  ID = 1:10,
+  Edad = c(45, 52, 36, 60, 50, 29, 47, 55, 40, 63),
+  Presion_Arterial = c(120, 135, NA, 140, 125, 110, 130, NA, 128, 138),
+  Glucosa = c(90, 85, 100, NA, 110, 95, NA, 102, 99, 105)
+)
+
+# Mostrar datos originales
+cat("\n===== DATOS ORIGINALES =====\n")
+print(pacientes)
+
+# Identificar valores faltantes
+cat("\n===== CANTIDAD DE VALORES FALTANTES =====\n")
+print(colSums(is.na(pacientes)))
+
+# OPCIÓN 1: Eliminar filas con valores faltantes
+pacientes_sin_na <- na.omit(pacientes)
+cat("\n===== DATOS SIN FILAS CON NA =====\n")
+print(pacientes_sin_na)
+
+# OPCIÓN 2: Imputar valores faltantes con la media
+pacientes$Presion_Arterial[is.na(pacientes$Presion_Arterial)] <- mean(pacientes$Presion_Arterial, na.rm = TRUE)
+pacientes$Glucosa[is.na(pacientes$Glucosa)] <- mean(pacientes$Glucosa, na.rm = TRUE)
+
+cat("\n===== DATOS CON IMPUTACIÓN POR MEDIA =====\n")
+print(pacientes)
+
+# OPCIÓN 3: Imputar valores faltantes con la mediana
+pacientes$Presion_Arterial[is.na(pacientes$Presion_Arterial)] <- median(pacientes$Presion_Arterial, na.rm = TRUE)
+pacientes$Glucosa[is.na(pacientes$Glucosa)] <- median(pacientes$Glucosa, na.rm = TRUE)
+
+cat("\n===== DATOS CON IMPUTACIÓN POR MEDIANA =====\n")
+print(pacientes)
