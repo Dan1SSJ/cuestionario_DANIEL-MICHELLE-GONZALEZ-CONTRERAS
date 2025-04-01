@@ -1,0 +1,43 @@
+
+dataset <- data.frame(
+  Categoria = c("Alta", "Baja", "Media", "Alta"),
+  Interacciones = c(500, 200, 300, 600),
+  Dias = c(10, 5, 7, 12),
+  Fecha = c("2023-01-15", "2023-02-10", "2023-03-05", "2023-04-20")
+)
+
+
+if ("Categoria" %in% names(dataset)) {
+  dataset$Categoria <- as.factor(dataset$Categoria)
+} else {
+  warning("Columna 'Categoria' no encontrada")
+}
+
+if ("Interacciones" %in% names(dataset)) {
+  if (max(dataset$Interacciones) - min(dataset$Interacciones) == 0) {
+    dataset$Interacciones_norm <- 0
+  } else {
+    dataset$Interacciones_norm <- (dataset$Interacciones - min(dataset$Interacciones)) / 
+                                  (max(dataset$Interacciones) - min(dataset$Interacciones))
+  }
+} else {
+  warning("Columna 'Interacciones' no encontrada")
+}
+
+if (all(c("Interacciones", "Dias") %in% names(dataset))) {
+  dataset$Interacciones_por_dia <- dataset$Interacciones / dataset$Dias
+} else {
+  warning("Faltan columnas 'Interacciones' o 'Dias'")
+}
+
+if ("Fecha" %in% names(dataset)) {
+  dataset$Fecha <- as.Date(dataset$Fecha, format = "%Y-%m-%d")
+  if (any(is.na(dataset$Fecha))) {
+    warning("Algunas fechas no se convirtieron correctamente, revisa el formato")
+  }
+} else {
+  warning("Columna 'Fecha' no encontrada")
+}
+
+# Ver el resultado
+print(dataset)
