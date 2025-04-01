@@ -1,0 +1,51 @@
+# Simulación de datos de encuesta con variables categóricas
+set.seed(123)
+encuesta <- data.frame(
+  ID = 1:100,
+  Género = sample(c("Masculino", "Femenino", "Otro"), 100, replace = TRUE),
+  Educación = sample(c("Primaria", "Secundaria", "Universidad"), 100, replace = TRUE),
+  Satisfacción = sample(c("Baja", "Media", "Alta"), 100, replace = TRUE),
+  Ingreso = rnorm(100, mean = 5000, sd = 1500) # Variable numérica para predicción
+)
+
+# Mostrar las primeras filas de los datos
+print(head(encuesta))
+
+# Métodos de Codificación
+## 1. Codificación Ordinal (Para variables con orden)
+encuesta$Satisfacción_ordinal <- as.numeric(factor(encuesta$Satisfacción, 
+                                  levels = c("Baja", "Media", "Alta"), 
+                                  ordered = TRUE))
+
+## 2. Codificación One-Hot (Para variables sin orden)
+library(caret)
+encuesta_dummy <- dummyVars(" ~ Género + Educación", data = encuesta)
+encuesta_onehot <- predict(encuesta_dummy, newdata = encuesta) %>% as.data.frame()
+
+# Unir las columnas codificadas al dataset original
+encuesta_final <- cbind(encuesta %>% select(-c(Género, Educación, Satisfacción)), encuesta_onehot)
+
+# Mostrar datos después de la codificación
+print(head(encuesta_final))
+
+# Comparación con Modelos de Machine Learning
+## División de datos en entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(encuesta_final$Ingreso, p = 0.8, list = FALSE)
+train_data <- encuesta_final[trainIndex, ]
+test_data <- encuesta_final[-trainIndex, ]
+
+## Entrenar modelo con codificación ordinal
+modelo_ordinal <- randomForest(Ingreso ~ ., data = train_data, ntree = 100)
+pred_ordinal <- predict(modelo_ordinal, test_data)
+error_ordinal <- sqrt(mean((pred_ordinal - test_data$Ingreso)^2))  # RMSE
+
+## Entrenar modelo con codificación One-Hot
+modelo_onehot <- randomForest(Ingreso ~ ., data = train_data, ntree = 100)
+pred_onehot <- predict(modelo_onehot, test_data)
+error_onehot <- sqrt(mean((pred_onehot - test_data$Ingreso)^2))  # RMSE
+
+# Comparar errores
+cat("\n===== Comparación de Errores RMSE =====\n")
+cat("Codificación Ordinal: ", error_ordinal, "\n")
+cat("Codificación One-Hot: ", error_onehot, "\n")
