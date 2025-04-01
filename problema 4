@@ -1,0 +1,64 @@
+# Cargar librerías necesarias
+library(ggplot2)
+library(dplyr)
+
+# Simulación de datos financieros con valores extremos
+set.seed(123)
+transacciones <- data.frame(
+  id_transaccion = 1:100,
+  monto = c(rnorm(95, mean = 5000, sd = 1500),  # Transacciones normales
+            25000, 30000, 35000, 50, 100)      # Outliers extremos
+)
+
+# Mostrar estadísticas iniciales
+cat("\n===== ESTADÍSTICAS INICIALES =====\n")
+summary(transacciones$monto)
+
+# Identificar outliers mediante diagrama de caja
+ggplot(transacciones, aes(y = monto)) +
+  geom_boxplot(fill = "lightblue", outlier.color = "red", outlier.shape = 16) +
+  labs(title = "Diagrama de Caja de Transacciones", y = "Monto")
+
+# Calcular el rango intercuartil (IQR) para definir límites de outliers
+Q1 <- quantile(transacciones$monto, 0.25)
+Q3 <- quantile(transacciones$monto, 0.75)
+IQR_value <- Q3 - Q1
+
+# Definir límites
+limite_inferior <- Q1 - 1.5 * IQR_value
+limite_superior <- Q3 + 1.5 * IQR_value
+
+cat("\n===== LÍMITES PARA OUTLIERS =====\n")
+cat("Límite Inferior:", limite_inferior, "\n")
+cat("Límite Superior:", limite_superior, "\n")
+
+# Identificar outliers
+outliers <- transacciones %>%
+  filter(monto < limite_inferior | monto > limite_superior)
+
+cat("\n===== OUTLIERS DETECTADOS =====\n")
+print(outliers)
+
+# Opción 1: Eliminar outliers
+transacciones_limpias <- transacciones %>%
+  filter(monto >= limite_inferior & monto <= limite_superior)
+
+# Opción 2: Transformar outliers (ejemplo con Winsorization)
+transacciones_transformadas <- transacciones
+transacciones_transformadas$monto <- pmin(pmax(transacciones_transformadas$monto, limite_inferior), limite_superior)
+
+# Comparar estadísticas antes y después del tratamiento
+cat("\n===== ESTADÍSTICAS DESPUÉS DE ELIMINACIÓN =====\n")
+summary(transacciones_limpias$monto)
+
+cat("\n===== ESTADÍSTICAS DESPUÉS DE TRANSFORMACIÓN =====\n")
+summary(transacciones_transformadas$monto)
+
+# Gráficos comparativos
+par(mfrow = c(1, 2))  # Dividir espacio gráfico en 2 columnas
+
+# Boxplot de datos originales
+boxplot(transacciones$monto, main = "Original", col = "lightblue", outlier.col = "red")
+
+# Boxplot después de limpiar los outliers
+boxplot(transacciones_limpias$monto, main = "Sin Outliers", col = "lightgreen", outlier.col = "red")
