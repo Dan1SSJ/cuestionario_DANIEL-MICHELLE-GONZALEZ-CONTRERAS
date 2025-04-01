@@ -1,0 +1,23 @@
+
+dataset <- data.frame(
+  Satisfaccion = c("baja", "media", "alta", "baja", "media"),
+  Valor = c(10, 15, 20, 12, 18)
+)
+
+dataset$Satisfaccion <- as.factor(dataset$Satisfaccion)
+
+onehot <- model.matrix(~ Satisfaccion - 1, data = dataset)
+dataset_onehot <- cbind(dataset$Valor, onehot)
+colnames(dataset_onehot)[1] <- "Valor"  # Renombrar la columna de Valor
+
+modelo_factor <- lm(Valor ~ Satisfaccion, data = dataset)
+
+modelo_onehot <- lm(Valor ~ ., data = as.data.frame(dataset_onehot))
+
+summary(modelo_factor)
+summary(modelo_onehot)
+
+print("Dataset original con factores:")
+print(dataset)
+print("Dataset con codificación one-hot:")
+print(dataset_onehot)
