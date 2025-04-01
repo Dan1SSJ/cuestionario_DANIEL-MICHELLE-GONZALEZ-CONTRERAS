@@ -1,0 +1,55 @@
+
+library(dplyr)
+
+# Crear dataset de clientes
+clientes <- data.frame(
+  cliente_id = 1:10,
+  nombre = c("Ana", "Luis", "Carlos", "Sofía", "Pedro", 
+             "Marta", "Jorge", "Elena", "Roberto", "Lucía"),
+  edad = c(25, 34, 42, 29, 37, 31, 45, 27, 39, 30),
+  ciudad = c("CDMX", "Guadalajara", "Monterrey", "Puebla", "Toluca",
+             "CDMX", "Guadalajara", "Monterrey", "Puebla", "Toluca"),
+  stringsAsFactors = FALSE
+)
+
+# Crear dataset de compras
+compras <- data.frame(
+  compra_id = 101:110,
+  cliente_id = c(1, 2, 3, 4, 5, 6, 7, 8, 3, 10),  # Cliente 3 tiene dos compras
+  producto = c("Laptop", "Celular", "Tablet", "Televisión", "Bocina",
+               "Audífonos", "Monitor", "Teclado", "Mouse", "Impresora"),
+  monto = c(15000, 8000, 6000, 12000, 3000, 2000, 5000, 1200, 700, 4500),
+  fecha = as.Date(c("2024-03-10", "2024-03-12", "2024-03-15", "2024-03-18", 
+                    "2024-03-20", "2024-03-22", "2024-03-25", "2024-03-28",
+                    "2024-03-30", "2024-04-01")),
+  stringsAsFactors = FALSE
+)
+
+# Mostrar datasets originales
+cat("\n===== DATASET DE CLIENTES =====\n")
+print(clientes)
+
+cat("\n===== DATASET DE COMPRAS =====\n")
+print(compras)
+
+# Unir los datasets por 'cliente_id'
+datos_fusionados <- merge(clientes, compras, by = "cliente_id", all.x = TRUE)
+
+# Verificar duplicados y valores faltantes
+duplicados <- sum(duplicated(datos_fusionados$cliente_id))
+faltantes <- sum(is.na(datos_fusionados))
+
+cat("\n===== DATOS FUSIONADOS =====\n")
+print(datos_fusionados)
+
+cat("\n===== VERIFICACIÓN =====\n")
+cat("Clientes duplicados después de la fusión:", duplicados, "\n")
+cat("Valores faltantes en los datos fusionados:", faltantes, "\n")
+
+# Consulta de resumen: Total gastado por cliente
+resumen_gastos <- datos_fusionados %>%
+  group_by(cliente_id, nombre) %>%
+  summarise(total_gastado = sum(monto, na.rm = TRUE), .groups = "drop")
+
+cat("\n===== RESUMEN DE GASTOS POR CLIENTE =====\n")
+print(resumen_gastos)
