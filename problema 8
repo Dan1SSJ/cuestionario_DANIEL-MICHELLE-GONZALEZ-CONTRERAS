@@ -1,0 +1,36 @@
+
+clientes <- data.frame(
+  ID_Cliente = c(1, 2, 3, 4, 5),
+  Nombre = c("Juan", "Ana", "Carlos", "Luis", "María"),
+  Edad = c(28, 35, 40, 25, 50),
+  Ciudad = c("Ciudad A", "Ciudad B", "Ciudad A", "Ciudad C", "Ciudad B")
+)
+
+compras <- data.frame(
+  ID_Compra = c(101, 102, 103, 104, 105, 106, 107),
+  ID_Cliente = c(1, 2, 3, 2, 4, 3, 5),
+  Producto = c("Laptop", "Smartphone", "Tablet", "Smartwatch", "Auriculares", "Monitor", "Cámara"),
+  Monto = c(1000, 800, 300, 150, 50, 600, 200)
+)
+
+cat("\nDataset de Clientes:\n")
+print(clientes)
+
+cat("\nDataset de Compras:\n")
+print(compras)
+
+datos_completos <- left_join(compras, clientes, by = "ID_Cliente")
+
+
+cat("\nDatos Fusionados:\n")
+print(datos_completos)
+
+datos_completos_sin_duplicados <- distinct(datos_completos)
+
+cat("\nDatos sin duplicados:\n")
+print(datos_completos_sin_duplicados)
+
+cat("\nRevisando inconsistencias en los datos (valores faltantes):\n")
+inconsistencias <- sapply(datos_completos_sin_duplicados, function(x) sum(is.na(x)))
+
+print(inconsistencias)
