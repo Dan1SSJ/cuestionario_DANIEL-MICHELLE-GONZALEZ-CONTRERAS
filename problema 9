@@ -1,0 +1,58 @@
+
+library(ggplot2)
+library(dplyr)
+
+set.seed(123)
+produccion <- data.frame(
+  ID_Producto = 1:100,
+  Produccion = c(rnorm(95, mean = 100, sd = 15), rnorm(5, mean = 300, sd = 50)) # Añadir algunos outliers
+)
+
+cat("\nPrimeros datos de producción:\n")
+print(head(produccion))
+
+ggplot(produccion, aes(y = Produccion)) +
+  geom_boxplot() +
+  labs(title = "Diagrama de Caja de Producción", y = "Cantidad de Producción")
+
+Q1 <- quantile(produccion$Produccion, 0.25)
+Q3 <- quantile(produccion$Produccion, 0.75)
+IQR_value <- Q3 - Q1
+
+lower_limit <- Q1 - 1.5 * IQR_value
+upper_limit <- Q3 + 1.5 * IQR_value
+
+outliers <- produccion %>%
+  filter(Produccion < lower_limit | Produccion > upper_limit)
+
+cat("\nOutliers identificados:\n")
+print(outliers)
+
+produccion_sin_outliers <- produccion %>%
+  filter(Produccion >= lower_limit & Produccion <= upper_limit)
+
+cat("\nDatos sin outliers (eliminación):\n")
+print(head(produccion_sin_outliers))
+
+produccion_transformada <- produccion %>%
+  mutate(Produccion_Transformada = log(Produccion + 1)) # Transformación logarítmica
+
+cat("\nDatos transformados (logarítmico):\n")
+print(head(produccion_transformada))
+
+media_produccion <- mean(produccion$Produccion, na.rm = TRUE)
+produccion_imputada <- produccion %>%
+  mutate(Produccion_Imputada = ifelse(Produccion < lower_limit | Produccion > upper_limit, media_produccion, Produccion))
+
+cat("\nDatos imputados (reemplazo de outliers por la media):\n")
+print(head(produccion_imputada))
+
+cat("\nComparación de la media antes y después de la eliminación de outliers:\n")
+cat("Media original: ", mean(produccion$Produccion), "\n")
+cat("Media después de eliminación: ", mean(produccion_sin_outliers$Produccion), "\n")
+
+cat("\nComparación de la media después de la transformación logarítmica:\n")
+cat("Media transformada: ", mean(produccion_transformada$Produccion_Transformada), "\n")
+
+cat("\nComparación de la media después de la imputación por la media:\n")
+cat("Media imputada: ", mean(produccion_imputada$Produccion_Imputada), "\n")
